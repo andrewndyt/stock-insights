@@ -69,6 +69,14 @@ jobs:
           echo "--- build_report ---" >> data/last_run.log
           python -u build_report.py 2>&1 | tee -a data/last_run.log
 
+      # index.html is a copy of report.html so that the bare GitHub Pages URL
+      # (andrewndyt.github.io/stock-insights/) shows the report directly rather
+      # than a directory listing. Pages source: main branch, / root.
+      - name: Publish as index.html
+        if: always()
+        run: |
+          if [ -f report.html ]; then cp report.html index.html; fi
+
       - name: Record outcome
         if: always()
         run: |
@@ -84,7 +92,7 @@ jobs:
         run: |
           git config user.name  "stock-insights-bot"
           git config user.email "actions@github.com"
-          git add -A data/ report.html 2>/dev/null || git add -A data/
+          git add -A data/ report.html index.html 2>/dev/null || git add -A data/
           if git diff --staged --quiet; then
             echo "Nothing to commit."
           else
@@ -101,6 +109,7 @@ jobs:
           path: |
             data/
             report.html
+            index.html
           retention-days: 30
           if-no-files-found: warn
 

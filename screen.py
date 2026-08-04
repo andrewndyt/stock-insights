@@ -121,6 +121,31 @@ def row_get(df, names):
     return None
 
 
+def eps_series(df):
+    """EPS per period, with a derived fallback.
+
+    yfinance omits the 'Diluted EPS' row for most companies on the ANNUAL
+    statement — 74 of 100 names on the first live run — which silently pushed
+    the A component onto its 1-year fallback. Net income divided by the diluted
+    share count reconstructs it and is available far more often.
+    """
+    eps = row_get(df, ["Diluted EPS", "Basic EPS"])
+    if eps is not None and eps.notna().sum() >= 2:
+        return eps, "reported"
+
+    ni = row_get(df, ["Net Income Common Stockholders", "Net Income",
+                      "Net Income Continuous Operations"])
+    sh = row_get(df, ["Diluted Average Shares", "Basic Average Shares"])
+    if ni is not None and sh is not None:
+        try:
+            derived = ni / sh.replace(0, pd.NA)
+            if derived.notna().sum() >= 2:
+                return derived, "derived"
+        except Exception:
+            pass
+    return eps, "missing"
+
+
 # ----------------------------------------------------------------------------
 # price-derived metrics
 # ----------------------------------------------------------------------------
@@ -163,12 +188,26 @@ def price_metrics(hist: pd.DataFrame) -> dict:
             yrs = len(close) / 252.0
             out["perf_year"] = round(((price / past) ** (1 / yrs) - 1.0) * 100.0, 2)
 
+    # Relative volume must never be taken from a partially-completed session.
+    # An intraday bar carries a fraction of the day's volume, which drove S to
+    # ~0 for every name on the first live run. Only use the final bar once the
+    # US session that produced it has actually closed (20:00 UTC + margin);
+    # otherwise fall back to the prior complete day.
     if "Volume" in hist:
         vol = hist["Volume"].dropna()
-        if len(vol) >= 50:
-            avg50 = float(vol.tail(50).mean())
+        if len(vol) >= 52:
+            now = datetime.now(timezone.utc)
+            last_date = vol.index[-1]
+            try:
+                last_date = last_date.date()
+            except AttributeError:
+                last_date = None
+            partial = (last_date == now.date() and now.hour < 21)
+            idx = -2 if partial else -1
+            avg50 = float(vol.iloc[idx - 50:idx].mean())
             if avg50 > 0:
-                out["rel_vol"] = round(float(vol.iloc[-1]) / avg50, 2)
+                out["rel_vol"] = round(float(vol.iloc[idx]) / avg50, 2)
+                out["rel_vol_bar"] = str(vol.index[idx])[:10]
     return out
 
 
@@ -176,14 +215,14 @@ def fundamentals(tk: yf.Ticker) -> dict:
     """Quarterly YoY growth, multi-year CAGRs, institutional ownership."""
     out = {"eps_qq": None, "sales_qq": None, "eps_this_y": None,
            "eps_past_4y": None, "sales_past_4y": None, "inst_own": None,
-           "inst_trans": None, "years_of_annual": 0}
+           "inst_trans": None, "years_of_annual": 0, "eps_source": "missing"}
 
     # --- quarterly: same quarter last year, so index -1 vs -5 ---
     try:
         q = tk.quarterly_income_stmt
         if q is not None and not q.empty:
             q = q.reindex(sorted(q.columns, reverse=True), axis=1)  # newest first
-            eps = row_get(q, ["Diluted EPS", "Basic EPS"])
+            eps, _ = eps_series(q)
             rev = row_get(q, ["Total Revenue", "Operating Revenue"])
             if eps is not None and len(eps) >= 5:
                 out["eps_qq"] = pct_change(eps.iloc[0], eps.iloc[4])
@@ -197,12 +236,17 @@ def fundamentals(tk: yf.Ticker) -> dict:
         a = tk.income_stmt
         if a is not None and not a.empty:
             a = a.reindex(sorted(a.columns, reverse=True), axis=1)
-            eps = row_get(a, ["Diluted EPS", "Basic EPS"])
+            eps, src = eps_series(a)
             rev = row_get(a, ["Total Revenue", "Operating Revenue"])
+            out["eps_source"] = src
+            if eps is not None:
+                eps = eps.dropna()
             if eps is not None and len(eps) >= 2:
                 out["years_of_annual"] = int(len(eps))
                 out["eps_this_y"] = pct_change(eps.iloc[0], eps.iloc[1])
                 out["eps_past_4y"] = cagr(eps.iloc[0], eps.iloc[-1], len(eps) - 1)
+            if rev is not None:
+                rev = rev.dropna()
             if rev is not None and len(rev) >= 2:
                 out["sales_past_4y"] = cagr(rev.iloc[0], rev.iloc[-1], len(rev) - 1)
     except Exception:
@@ -278,6 +322,8 @@ def score_one(d: dict, m_score: float) -> dict:
     flags = []
     if used_fallback:
         flags.append("A uses 1yr growth — no multi-year EPS history")
+    if d.get("eps_source") == "derived":
+        flags.append("EPS derived from net income / diluted shares")
     if d.get("eps_qq") is None:
         flags.append("no usable quarterly EPS growth (negative or missing base)")
     if d.get("inst_own") is None:
@@ -333,6 +379,23 @@ def bulk_history(symbols: list) -> dict:
                     print(f"  ! history chunk failed: {part}", file=sys.stderr)
                 time.sleep(5 * (attempt + 1))
         time.sleep(1)
+
+    # Batch downloads drop the occasional valid symbol (BK, FI and MMC all
+    # 404'd in a batch on the first live run but resolve fine individually).
+    # Retry the stragglers one at a time before writing them off.
+    missing = [s for s in symbols if s not in out]
+    if missing:
+        print(f"  retrying {len(missing)} individually: {' '.join(missing)}")
+        for s in missing:
+            try:
+                df = yf.Ticker(s).history(period="2y", interval="1d",
+                                          auto_adjust=True)
+                if df is not None and not df.dropna(how="all").empty:
+                    out[s] = df.dropna(how="all")
+                    print(f"    recovered {s}")
+            except Exception:
+                pass
+            time.sleep(1.5)
     return out
 
 
@@ -347,6 +410,20 @@ def main() -> int:
     idx_hist = bulk_history(INDEXES)
     m_score, m_detail = market_direction(idx_hist)
     print(f"  M = {m_score}")
+    # Diagnostics — M is a single number applied to all 100 names, so a wrong
+    # M shifts the entire board. Print the working so it can be checked by hand
+    # against any chart rather than taken on trust.
+    for sym in INDEXES:
+        h = idx_hist.get(sym)
+        if h is None or h.empty:
+            print(f"    {sym}: NO DATA")
+            continue
+        c = h["Close"].dropna()
+        print(f"    {sym}: last 5 closes " +
+              " ".join(f"{str(i)[:10]}={v:.2f}" for i, v in c.tail(5).items()))
+        print(f"        sma20={c.tail(20).mean():.2f} sma50={c.tail(50).mean():.2f} "
+              f"sma200={c.tail(200).mean():.2f} max252={c.tail(252).max():.2f} "
+              f"bars={len(c)}")
 
     print("Downloading price history...")
     hist = bulk_history(universe)

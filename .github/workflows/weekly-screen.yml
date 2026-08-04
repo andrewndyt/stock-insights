@@ -1,0 +1,68 @@
+name: Weekly CANSLIM Screen
+
+# Fires Friday 21:30 UTC = Saturday 07:30 Sydney (AEST, UTC+10).
+# The Cowork "Stock Insights" task pulls the result at 23:00 UTC (09:00 Sydney),
+# leaving a 90-minute buffer for the run to finish and commit.
+# Note: Actions cron is UTC year-round and does not follow Australian DST.
+# When Sydney moves to AEDT (UTC+11) in October this lands at 08:30 local, which
+# is still comfortably before the Cowork task. No change needed.
+on:
+  schedule:
+    - cron: "30 21 * * 5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-screen
+  cancel-in-progress: false
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run screen
+        run: python screen.py
+
+      - name: Build report
+        run: python build_report.py
+
+      - name: Commit results
+        run: |
+          git config user.name  "stock-insights-bot"
+          git config user.email "actions@github.com"
+          git add data/ report.html
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Weekly screen $(date -u +'%Y-%m-%d')"
+            git push
+          fi
+
+      # Keeps the raw run output available for debugging a bad week even after
+      # the committed files have been overwritten by the next run.
+      - name: Upload artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-output-${{ github.run_number }}
+          path: |
+            data/latest.json
+            report.html
+          retention-days: 30
+          if-no-files-found: warn

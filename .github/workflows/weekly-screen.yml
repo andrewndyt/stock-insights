@@ -6,10 +6,18 @@ name: Weekly CANSLIM Screen
 # Note: Actions cron is UTC year-round and does not follow Australian DST.
 # When Sydney moves to AEDT (UTC+11) in October this lands at 08:30 local, which
 # is still comfortably before the Cowork task. No change needed.
+#
+# Three ways to fire a run:
+#   * the schedule below
+#   * the "Run workflow" button (workflow_dispatch)
+#   * pushing any change to the .runtrigger file — used for remote debugging
 on:
   schedule:
     - cron: "30 21 * * 5"
   workflow_dispatch: {}
+  push:
+    paths:
+      - ".runtrigger"
 
 permissions:
   contents: write
@@ -34,35 +42,72 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt 2>&1 | tail -5
 
+      # Every step below writes to data/last_run.log, which is committed even on
+      # failure. This is deliberate: it makes a run diagnosable by reading one
+      # file over plain HTTPS, without needing the GitHub API or the Actions UI.
       - name: Run screen
-        run: python screen.py
+        id: screen
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          mkdir -p data
+          {
+            echo "=============================================="
+            echo "run $GITHUB_RUN_NUMBER  $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "trigger: $GITHUB_EVENT_NAME"
+            echo "=============================================="
+          } > data/last_run.log
+          python -u screen.py 2>&1 | tee -a data/last_run.log
 
       - name: Build report
-        run: python build_report.py
+        id: report
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          echo "--- build_report ---" >> data/last_run.log
+          python -u build_report.py 2>&1 | tee -a data/last_run.log
+
+      - name: Record outcome
+        if: always()
+        run: |
+          {
+            echo "--- outcome ---"
+            echo "screen: ${{ steps.screen.outcome }}"
+            echo "report: ${{ steps.report.outcome }}"
+            ls -la data/ report.html 2>&1 || true
+          } >> data/last_run.log
 
       - name: Commit results
+        if: always()
         run: |
           git config user.name  "stock-insights-bot"
           git config user.email "actions@github.com"
-          git add data/ report.html
+          git add -A data/ report.html 2>/dev/null || git add -A data/
           if git diff --staged --quiet; then
-            echo "No changes to commit."
+            echo "Nothing to commit."
           else
-            git commit -m "Weekly screen $(date -u +'%Y-%m-%d')"
+            git commit -m "Screen run ${GITHUB_RUN_NUMBER} — $(date -u +'%Y-%m-%d')"
+            git pull --rebase --autostash origin main || true
             git push
           fi
 
-      # Keeps the raw run output available for debugging a bad week even after
-      # the committed files have been overwritten by the next run.
       - name: Upload artefacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: screen-output-${{ github.run_number }}
           path: |
-            data/latest.json
+            data/
             report.html
           retention-days: 30
           if-no-files-found: warn
+
+      # Make the Actions badge honest — if the screen or the report failed, the
+      # job fails, even though we let it continue in order to commit the log.
+      - name: Fail if any step failed
+        if: steps.screen.outcome != 'success' || steps.report.outcome != 'success'
+        run: |
+          echo "screen=${{ steps.screen.outcome }} report=${{ steps.report.outcome }}"
+          exit 1

@@ -496,14 +496,33 @@ def main() -> int:
     with open(OUT_FILE, "w") as fh:
         json.dump(payload, fh, indent=1, default=str)
 
-    with open(HISTORY_FILE, "a") as fh:
-        fh.write(json.dumps({
-            "date": started.strftime("%Y-%m-%d"),
-            "m": m_score,
-            "universe": len(kept),
-            "gate_pass": len(gate_passers),
-            "top": [{"t": r["ticker"], "s": r["total"]} for r in gate_passers[:10]],
-        }, default=str) + "\n")
+    # history.jsonl is the raw material for eventually backtesting the score, so
+    # it must hold exactly one authoritative row per date. Appending blindly
+    # would leave re-runs and superseded (buggy) runs sitting alongside good
+    # ones, quietly poisoning any later analysis. Rewrite keyed by date instead.
+    today_row = {
+        "date": started.strftime("%Y-%m-%d"),
+        "m": m_score,
+        "universe": len(kept),
+        "gate_pass": len(gate_passers),
+        "top": [{"t": r["ticker"], "s": r["total"]} for r in gate_passers[:10]],
+    }
+    rows_by_date = {}
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE) as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                    rows_by_date[rec["date"]] = rec
+                except (ValueError, KeyError):
+                    continue
+    rows_by_date[today_row["date"]] = today_row      # latest run for a date wins
+    with open(HISTORY_FILE, "w") as fh:
+        for date in sorted(rows_by_date):
+            fh.write(json.dumps(rows_by_date[date], default=str) + "\n")
 
     print(f"\nWrote {OUT_FILE}")
     print(f"M={m_score}  gate {len(gate_passers)}/{len(kept)}")

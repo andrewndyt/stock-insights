@@ -1,8 +1,8 @@
 ==============================================
-run 6  2026-08-14T21:50:18Z
+run 7  2026-08-21T21:50:18Z
 trigger: schedule
 ==============================================
-Stock Insights screen — 2026-08-14T21:50:18.841286+00:00
+Stock Insights screen — 2026-08-21T21:50:19.511682+00:00
 Universe file: 141 candidate symbols
 Downloading index history...
 
@@ -10,13 +10,13 @@ Downloading index history...
 ['QQQ']: OperationalError('database is locked')
   retrying 1 individually: QQQ
     recovered QQQ
-  M = 99.1
-    SPY: last 5 closes 2026-08-10=773.03 2026-08-11=770.56 2026-08-12=772.49 2026-08-13=777.88 2026-08-14=776.34
-        sma20=756.20 sma50=748.54 sma200=702.75 max252=777.88 bars=501
-    QQQ: last 5 closes 2026-08-10=720.87 2026-08-11=718.45 2026-08-12=723.70 2026-08-13=732.07 2026-08-14=731.07
-        sma20=704.13 sma50=712.78 sma200=649.53 max252=745.34 bars=501
-    IWM: last 5 closes 2026-08-10=299.98 2026-08-11=300.99 2026-08-12=302.71 2026-08-13=303.50 2026-08-14=305.09
-        sma20=296.72 sma50=295.01 sma200=267.71 max252=305.09 bars=501
+  M = 96.9
+    SPY: last 5 closes 2026-08-17=772.67 2026-08-18=767.45 2026-08-19=769.06 2026-08-20=762.60 2026-08-21=765.72
+        sma20=762.33 sma50=751.56 sma200=704.98 max252=777.88 bars=501
+    QQQ: last 5 closes 2026-08-17=729.87 2026-08-18=717.51 2026-08-19=716.08 2026-08-20=710.93 2026-08-21=713.44
+        sma20=709.19 sma50=713.35 sma200=651.74 max252=745.34 bars=501
+    IWM: last 5 closes 2026-08-17=304.06 2026-08-18=300.23 2026-08-19=301.72 2026-08-20=297.67 2026-08-21=299.96
+        sma20=298.60 sma50=296.65 sma200=269.12 max252=305.09 bars=501
 Downloading price history...
 HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: BK"}}}
 $BK: No data found, symbol may be delisted
@@ -47,30 +47,30 @@ Fetching fundamentals...
 Scoring 100 names (dropped 38)
 
 Wrote data/latest.json
-M=99.1  gate 74/100
+M=96.9  gate 70/100
 Top gate-passing:
-  NVDA    72.0  Strong
-  AMD     71.5  Strong
-  CRWD    65.9  Above Average
-  LLY     64.7  Above Average
+  NVDA    72.1  Strong
+  WELL    66.6  Above Average
+  LLY     66.2  Above Average
+  AMD     64.4  Above Average
+  COP     63.0  Above Average
   GE      62.7  Above Average
-  WELL    61.0  Above Average
-  CVS     60.3  Above Average
-  AVGO    59.4  Below Threshold
-  GOOGL   59.1  Below Threshold
-  APH     58.9  Below Threshold
+  CRWD    62.4  Above Average
+  ANET    61.9  Above Average
+  GOOGL   61.0  Above Average
+  MU      60.9  Above Average
 --- build_report ---
-Wrote report.html (79,817 bytes)
+Wrote report.html (80,198 bytes)
 --- outcome ---
 screen: success
 report: success
--rw-r--r-- 1 runner runner 79879 Aug 14 21:52 report.html
+-rw-r--r-- 1 runner runner 80264 Aug 21 21:53 report.html
 
 data/:
 total 116
-drwxr-xr-x 2 runner runner   4096 Aug 14 21:50 .
-drwxr-xr-x 5 runner runner   4096 Aug 14 21:50 ..
--rw-r--r-- 1 runner runner      0 Aug 14 21:50 .gitkeep
--rw-r--r-- 1 runner runner    996 Aug 14 21:52 history.jsonl
--rw-r--r-- 1 runner runner   2315 Aug 14 21:52 last_run.log
--rw-r--r-- 1 runner runner 100102 Aug 14 21:52 latest.json
+drwxr-xr-x 2 runner runner   4096 Aug 21 21:50 .
+drwxr-xr-x 5 runner runner   4096 Aug 21 21:50 ..
+-rw-r--r-- 1 runner runner      0 Aug 21 21:50 .gitkeep
+-rw-r--r-- 1 runner runner   1327 Aug 21 21:53 history.jsonl
+-rw-r--r-- 1 runner runner   2316 Aug 21 21:53 last_run.log
+-rw-r--r-- 1 runner runner 100359 Aug 21 21:53 latest.json

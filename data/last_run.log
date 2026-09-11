@@ -1,17 +1,17 @@
 ==============================================
-run 9  2026-09-04T23:11:28Z
+run 10  2026-09-11T23:29:24Z
 trigger: schedule
 ==============================================
-Stock Insights screen — 2026-09-04T23:11:29.614734+00:00
+Stock Insights screen — 2026-09-11T23:29:25.198843+00:00
 Universe file: 141 candidate symbols
 Downloading index history...
-  M = 80.2
-    SPY: last 5 closes 2026-08-31=767.05 2026-09-01=761.78 2026-09-02=765.16 2026-09-03=773.17 2026-09-04=770.19
-        sma20=769.05 sma50=756.86 sma200=709.87 max252=777.88 bars=502
-    QQQ: last 5 closes 2026-08-31=716.76 2026-09-01=707.64 2026-09-02=709.24 2026-09-03=717.67 2026-09-04=718.96
-        sma20=717.51 sma50=711.09 sma200=656.78 max252=745.34 bars=502
-    IWM: last 5 closes 2026-08-31=293.93 2026-09-01=290.57 2026-09-02=294.01 2026-09-03=295.19 2026-09-04=296.01
-        sma20=298.87 sma50=297.01 sma200=271.98 max252=305.09 bars=502
+  M = 62.0
+    SPY: last 5 closes 2026-09-04=770.19 2026-09-08=765.96 2026-09-09=762.40 2026-09-10=757.83 2026-09-11=764.29
+        sma20=766.88 sma50=758.62 sma200=712.06 max252=777.88 bars=501
+    QQQ: last 5 closes 2026-09-04=718.96 2026-09-08=718.36 2026-09-09=716.31 2026-09-10=708.69 2026-09-11=714.88
+        sma20=715.67 sma50=710.41 sma200=659.26 max252=745.34 bars=501
+    IWM: last 5 closes 2026-09-04=296.01 2026-09-08=294.67 2026-09-09=290.64 2026-09-10=287.70 2026-09-11=288.89
+        sma20=296.60 sma50=296.28 sma200=273.17 max252=305.09 bars=501
 Downloading price history...
 HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: BK"}}}
 $BK: No data found, symbol may be delisted
@@ -42,30 +42,30 @@ Fetching fundamentals...
 Scoring 100 names (dropped 38)
 
 Wrote data/latest.json
-M=80.2  gate 69/100
+M=62.0  gate 64/100
 Top gate-passing:
-  NVDA    79.4  Strong
-  AMD     67.5  Above Average
-  MU      67.2  Above Average
-  CRWD    65.8  Above Average
-  CRM     65.5  Above Average
-  LLY     61.0  Above Average
-  WELL    60.9  Above Average
-  PGR     59.0  Below Threshold
-  GOOGL   58.1  Below Threshold
-  GE      57.3  Below Threshold
+  AMD     69.5  Above Average
+  NVDA    67.7  Above Average
+  CRM     65.3  Above Average
+  MU      61.4  Above Average
+  CRWD    61.0  Above Average
+  APH     60.1  Above Average
+  WELL    59.4  Below Threshold
+  GOOGL   59.3  Below Threshold
+  CVX     58.2  Below Threshold
+  LLY     57.2  Below Threshold
 --- build_report ---
-Wrote report.html (80,297 bytes)
+Wrote report.html (80,148 bytes)
 --- outcome ---
 screen: success
 report: success
--rw-r--r-- 1 runner runner 80361 Sep  4 23:13 report.html
+-rw-r--r-- 1 runner runner 80202 Sep 11 23:31 report.html
 
 data/:
 total 116
-drwxr-xr-x 2 runner runner   4096 Sep  4 23:11 .
-drwxr-xr-x 5 runner runner   4096 Sep  4 23:11 ..
--rw-r--r-- 1 runner runner      0 Sep  4 23:11 .gitkeep
--rw-r--r-- 1 runner runner   1992 Sep  4 23:13 history.jsonl
--rw-r--r-- 1 runner runner   2205 Sep  4 23:13 last_run.log
--rw-r--r-- 1 runner runner 100433 Sep  4 23:13 latest.json
+drwxr-xr-x 2 runner runner   4096 Sep 11 23:29 .
+drwxr-xr-x 5 runner runner   4096 Sep 11 23:29 ..
+-rw-r--r-- 1 runner runner      0 Sep 11 23:29 .gitkeep
+-rw-r--r-- 1 runner runner   2323 Sep 11 23:31 history.jsonl
+-rw-r--r-- 1 runner runner   2215 Sep 11 23:31 last_run.log
+-rw-r--r-- 1 runner runner 100318 Sep 11 23:31 latest.json

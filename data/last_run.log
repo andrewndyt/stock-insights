@@ -1,17 +1,17 @@
 ==============================================
-run 11  2026-09-18T23:29:40Z
+run 12  2026-09-26T00:01:15Z
 trigger: schedule
 ==============================================
-Stock Insights screen — 2026-09-18T23:29:41.018479+00:00
+Stock Insights screen — 2026-09-26T00:01:16.235448+00:00
 Universe file: 141 candidate symbols
 Downloading index history...
-  M = 70.0
-    SPY: last 5 closes 2026-09-14=760.88 2026-09-15=757.39 2026-09-16=754.05 2026-09-17=762.60 2026-09-18=761.69
-        sma20=764.30 sma50=759.73 sma200=714.24 max252=777.88 bars=501
-    QQQ: last 5 closes 2026-09-14=709.18 2026-09-15=704.54 2026-09-16=704.72 2026-09-17=716.92 2026-09-18=721.45
-        sma20=713.24 sma50=709.95 sma200=661.77 max252=745.34 bars=501
-    IWM: last 5 closes 2026-09-14=287.16 2026-09-15=285.14 2026-09-16=283.92 2026-09-17=285.43 2026-09-18=284.10
-        sma20=291.87 sma50=294.43 sma200=273.51 max252=304.30 bars=501
+  M = 79.4
+    SPY: last 5 closes 2026-09-18=761.69 2026-09-21=773.50 2026-09-22=773.38 2026-09-23=767.81 2026-09-24=767.18
+        sma20=763.92 sma50=759.46 sma200=714.36 max252=775.95 bars=500
+    QQQ: last 5 closes 2026-09-18=720.70 2026-09-21=741.47 2026-09-22=747.46 2026-09-23=741.21 2026-09-24=741.10
+        sma20=719.11 sma50=711.20 sma200=663.53 max252=747.46 bars=500
+    IWM: last 5 closes 2026-09-18=284.10 2026-09-21=285.58 2026-09-22=287.21 2026-09-23=281.92 2026-09-24=281.66
+        sma20=289.04 sma50=293.63 sma200=274.26 max252=304.30 bars=500
 Downloading price history...
 HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: BK"}}}
 $BK: No data found, symbol may be delisted
@@ -42,30 +42,30 @@ Fetching fundamentals...
 Scoring 100 names (dropped 38)
 
 Wrote data/latest.json
-M=70.0  gate 61/100
+M=79.4  gate 57/100
 Top gate-passing:
-  AMD     80.2  Exceptional
-  NVDA    79.5  Strong
-  CRWD    75.7  Strong
-  CRM     74.2  Strong
-  FTNT    72.4  Strong
-  LLY     70.5  Strong
-  WELL    70.2  Strong
-  GOOGL   69.8  Above Average
-  MU      68.8  Above Average
-  ANET    68.8  Above Average
+  AMD     74.7  Strong
+  NVDA    70.5  Strong
+  CRWD    68.7  Above Average
+  MU      66.3  Above Average
+  META    64.8  Above Average
+  INTC    64.4  Above Average
+  EQIX    63.6  Above Average
+  CRM     62.8  Above Average
+  LLY     62.1  Above Average
+  WELL    61.6  Above Average
 --- build_report ---
-Wrote report.html (80,450 bytes)
+Wrote report.html (80,621 bytes)
 --- outcome ---
 screen: success
 report: success
--rw-r--r-- 1 runner runner 80508 Sep 18 23:32 report.html
+-rw-r--r-- 1 runner runner 80681 Sep 26 00:03 report.html
 
 data/:
 total 116
-drwxr-xr-x 2 runner runner   4096 Sep 18 23:29 .
-drwxr-xr-x 5 runner runner   4096 Sep 18 23:29 ..
--rw-r--r-- 1 runner runner      0 Sep 18 23:29 .gitkeep
--rw-r--r-- 1 runner runner   2656 Sep 18 23:32 history.jsonl
--rw-r--r-- 1 runner runner   2163 Sep 18 23:32 last_run.log
--rw-r--r-- 1 runner runner 100588 Sep 18 23:32 latest.json
+drwxr-xr-x 2 runner runner   4096 Sep 26 00:01 .
+drwxr-xr-x 5 runner runner   4096 Sep 26 00:01 ..
+-rw-r--r-- 1 runner runner      0 Sep 26 00:01 .gitkeep
+-rw-r--r-- 1 runner runner   2988 Sep 26 00:03 history.jsonl
+-rw-r--r-- 1 runner runner   2193 Sep 26 00:03 last_run.log
+-rw-r--r-- 1 runner runner 100720 Sep 26 00:03 latest.json

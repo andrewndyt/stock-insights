@@ -1,0 +1,364 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/andrewndyt/stock-insights/blob/main/Nintendo\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# DeepFake\n",
+        "\n",
+        "Deepfake is a technology that uses artificial intelligence to manipulate the appearance and voice of a person in a video. Roop uses a face swapping technique that replaces the original face in the video with the desired face, while preserving the facial expressions and movements.\n",
+        "\n",
+        "# Roop Repo\n",
+        "Roop is a repository on GitHub that allows users to create deepfake videos using only one image of the desired face.\n",
+        "\n",
+        "Roop was developed by s0md3v, a security researcher and developer from India1. He started the project in May 2021 and discontinued it in August 2023, citing ethical issues and breach of trust by another developer who published a problematic video to the documentation of the project1. Roop has received over 400 commits and 2,000 stars on GitHub1. It has also been forked by other developers who have made some modifications and improvements2"
+      ],
+      "metadata": {
+        "id": "gJ2GigCVQLJI"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Clone roop and fix the onnxruntime version\n",
+        "!git clone https://github.com/s0md3v/roop\n",
+        "%cd roop\n",
+        "!sed -i 's/onnxruntime==1.15.0/onnxruntime==1.30.0/' requirements.txt\n",
+        "!pip install -r requirements.txt"
+      ],
+      "metadata": {
+        "id": "I8JTjYW1rslz",
+        "outputId": "e839475e-e3e5-4c19-d164-306b1760a1ab",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "fatal: destination path 'roop' already exists and is not an empty directory.\n",
+            "/content/roop\n",
+            "Collecting insightface==0.7.3 (from -r requirements.txt (line 1))\n",
+            "  Using cached insightface-0.7.3.tar.gz (439 kB)\n",
+            "  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "Collecting onnx==1.14.0 (from -r requirements.txt (line 2))\n",
+            "  Using cached onnx-1.14.0.tar.gz (11.3 MB)\n",
+            "  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Installing backend dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "Collecting onnxruntime==1.30.0 (from -r requirements.txt (line 3))\n",
+            "  Downloading onnxruntime-1.30.0-cp313-cp313-manylinux_2_28_x86_64.whl.metadata (5.7 kB)\n",
+            "Collecting opencv-python==4.7.0.72 (from -r requirements.txt (line 4))\n",
+            "  Downloading opencv_python-4.7.0.72-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (18 kB)\n",
+            "Collecting ifnude (from -r requirements.txt (line 5))\n",
+            "  Downloading ifnude-0.0.3-py2.py3-none-any.whl.metadata (1.7 kB)\n",
+            "Requirement already satisfied: cython in /usr/local/lib/python3.13/dist-packages (from -r requirements.txt (line 6)) (3.0.12)\n",
+            "Requirement already satisfied: numpy in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (2.1.3)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (4.67.3)\n",
+            "Requirement already satisfied: requests in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (2.32.4)\n",
+            "Requirement already satisfied: matplotlib in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (3.10.0)\n",
+            "Requirement already satisfied: Pillow in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (11.3.0)\n",
+            "Requirement already satisfied: scipy in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (1.16.3)\n",
+            "Requirement already satisfied: scikit-learn in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (1.6.1)\n",
+            "Requirement already satisfied: scikit-image in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (0.25.2)\n",
+            "Requirement already satisfied: easydict in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (1.13)\n",
+            "Requirement already satisfied: albumentations in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (2.0.8)\n",
+            "Requirement already satisfied: prettytable in /usr/local/lib/python3.13/dist-packages (from insightface==0.7.3->-r requirements.txt (line 1)) (3.18.0)\n",
+            "Requirement already satisfied: protobuf>=3.20.2 in /usr/local/lib/python3.13/dist-packages (from onnx==1.14.0->-r requirements.txt (line 2)) (5.29.6)\n",
+            "Requirement already satisfied: typing-extensions>=3.6.2.1 in /usr/local/lib/python3.13/dist-packages (from onnx==1.14.0->-r requirements.txt (line 2)) (4.16.0)\n",
+            "Requirement already satisfied: flatbuffers in /usr/local/lib/python3.13/dist-packages (from onnxruntime==1.30.0->-r requirements.txt (line 3)) (25.12.19)\n",
+            "Requirement already satisfied: packaging in /usr/local/lib/python3.13/dist-packages (from onnxruntime==1.30.0->-r requirements.txt (line 3)) (26.3)\n",
+            "Requirement already satisfied: opencv-python-headless>=4.5.1.48 in /usr/local/lib/python3.13/dist-packages (from ifnude->-r requirements.txt (line 5)) (5.0.0.93)\n",
+            "Requirement already satisfied: PyYAML in /usr/local/lib/python3.13/dist-packages (from albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (6.0.3)\n",
+            "Requirement already satisfied: pydantic>=2.9.2 in /usr/local/lib/python3.13/dist-packages (from albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (2.13.5)\n",
+            "Requirement already satisfied: albucore==0.0.24 in /usr/local/lib/python3.13/dist-packages (from albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (0.0.24)\n",
+            "Requirement already satisfied: stringzilla>=3.10.4 in /usr/local/lib/python3.13/dist-packages (from albucore==0.0.24->albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (5.1.2)\n",
+            "Requirement already satisfied: simsimd>=5.9.2 in /usr/local/lib/python3.13/dist-packages (from albucore==0.0.24->albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (6.5.16)\n",
+            "Requirement already satisfied: contourpy>=1.0.1 in /usr/local/lib/python3.13/dist-packages (from matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (1.3.3)\n",
+            "Requirement already satisfied: cycler>=0.10 in /usr/local/lib/python3.13/dist-packages (from matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (0.12.1)\n",
+            "Requirement already satisfied: fonttools>=4.22.0 in /usr/local/lib/python3.13/dist-packages (from matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (4.64.0)\n",
+            "Requirement already satisfied: kiwisolver>=1.3.1 in /usr/local/lib/python3.13/dist-packages (from matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (1.5.1)\n",
+            "Requirement already satisfied: pyparsing>=2.3.1 in /usr/local/lib/python3.13/dist-packages (from matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (3.3.2)\n",
+            "Requirement already satisfied: python-dateutil>=2.7 in /usr/local/lib/python3.13/dist-packages (from matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (2.9.0.post0)\n",
+            "Requirement already satisfied: wcwidth>=0.3.5 in /usr/local/lib/python3.13/dist-packages (from prettytable->insightface==0.7.3->-r requirements.txt (line 1)) (0.8.3)\n",
+            "Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.13/dist-packages (from requests->insightface==0.7.3->-r requirements.txt (line 1)) (3.4.9)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.13/dist-packages (from requests->insightface==0.7.3->-r requirements.txt (line 1)) (3.19)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.13/dist-packages (from requests->insightface==0.7.3->-r requirements.txt (line 1)) (2.5.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.13/dist-packages (from requests->insightface==0.7.3->-r requirements.txt (line 1)) (2026.7.22)\n",
+            "Requirement already satisfied: networkx>=3.0 in /usr/local/lib/python3.13/dist-packages (from scikit-image->insightface==0.7.3->-r requirements.txt (line 1)) (3.6.1)\n",
+            "Requirement already satisfied: imageio!=2.35.0,>=2.33 in /usr/local/lib/python3.13/dist-packages (from scikit-image->insightface==0.7.3->-r requirements.txt (line 1)) (2.37.4)\n",
+            "Requirement already satisfied: tifffile>=2022.8.12 in /usr/local/lib/python3.13/dist-packages (from scikit-image->insightface==0.7.3->-r requirements.txt (line 1)) (2026.8.23)\n",
+            "Requirement already satisfied: lazy-loader>=0.4 in /usr/local/lib/python3.13/dist-packages (from scikit-image->insightface==0.7.3->-r requirements.txt (line 1)) (0.5)\n",
+            "Requirement already satisfied: joblib>=1.2.0 in /usr/local/lib/python3.13/dist-packages (from scikit-learn->insightface==0.7.3->-r requirements.txt (line 1)) (1.6.0)\n",
+            "Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.13/dist-packages (from scikit-learn->insightface==0.7.3->-r requirements.txt (line 1)) (3.6.0)\n",
+            "Requirement already satisfied: cloudpickle>=3.0 in /usr/local/lib/python3.13/dist-packages (from joblib>=1.2.0->scikit-learn->insightface==0.7.3->-r requirements.txt (line 1)) (3.1.2)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.13/dist-packages (from pydantic>=2.9.2->albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (0.8.0)\n",
+            "Requirement already satisfied: pydantic-core==2.46.5 in /usr/local/lib/python3.13/dist-packages (from pydantic>=2.9.2->albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (2.46.5)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.13/dist-packages (from pydantic>=2.9.2->albumentations->insightface==0.7.3->-r requirements.txt (line 1)) (0.4.4)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.13/dist-packages (from python-dateutil>=2.7->matplotlib->insightface==0.7.3->-r requirements.txt (line 1)) (1.17.0)\n",
+            "Downloading onnxruntime-1.30.0-cp313-cp313-manylinux_2_28_x86_64.whl (23.6 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m23.6/23.6 MB\u001b[0m \u001b[31m87.3 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading opencv_python-4.7.0.72-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (61.8 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m61.8/61.8 MB\u001b[0m \u001b[31m11.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading ifnude-0.0.3-py2.py3-none-any.whl (7.1 kB)\n",
+            "Building wheels for collected packages: insightface, onnx\n",
+            "  Building wheel for insightface (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for insightface: filename=insightface-0.7.3-cp313-cp313-linux_x86_64.whl size=1106189 sha256=fc32be448bc25595eb0efec315042785c76061c6f9a963e3b5138b3a3c5b2d3d\n",
+            "  Stored in directory: /root/.cache/pip/wheels/e8/a1/6a/a94e7156c3c0815101a10be114c44fc0b2b3e40fc10d63b939\n",
+            "  \u001b[1;31merror\u001b[0m: \u001b[1msubprocess-exited-with-error\u001b[0m\n",
+            "  \n",
+            "  \u001b[31m×\u001b[0m \u001b[32mBuilding wheel for onnx \u001b[0m\u001b[1;32m(\u001b[0m\u001b[32mpyproject.toml\u001b[0m\u001b[1;32m)\u001b[0m did not run successfully.\n",
+            "  \u001b[31m│\u001b[0m exit code: \u001b[1;36m1\u001b[0m\n",
+            "  \u001b[31m╰─>\u001b[0m See above for output.\n",
+            "  \n",
+            "  \u001b[1;35mnote\u001b[0m: This error originates from a subprocess, and is likely not a problem with pip.\n",
+            "  Building wheel for onnx (pyproject.toml) ... \u001b[?25l\u001b[?25herror\n",
+            "\u001b[31m  ERROR: Failed building wheel for onnx\u001b[0m\u001b[31m\n",
+            "\u001b[0mSuccessfully built insightface\n",
+            "Failed to build onnx\n",
+            "\u001b[31mERROR: ERROR: Failed to build installable wheels for some pyproject.toml based projects (onnx)\u001b[0m\u001b[31m\n",
+            "\u001b[0m"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Mount Google Drive\n",
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')\n",
+        "\n",
+        "# After mounting, you can copy files like this:\n",
+        "# Replace 'YourFolder/video.mp4' with your actual file path in Drive\n",
+        "# !cp \"/content/drive/MyDrive/YourFolder/video.mp4\" /content/video.mp4\n",
+        "# !cp \"/content/drive/MyDrive/YourFolder/image.jpeg\" /content/image.jpeg\n",
+        "\n",
+        "print(\"\\nGoogle Drive mounted successfully!\")\n",
+        "print(\"\\nNow you can:\")\n",
+        "print(\"1. Find your files in the Files panel on the left\")\n",
+        "print(\"2. Right-click on your video/image and select 'Copy path'\")\n",
+        "print(\"3. Use that path in the cp command above\")"
+      ],
+      "metadata": {
+        "id": "hq5fXyzlsL1n",
+        "outputId": "8d3bf38d-771b-4344-8aea-d7d84b0d17ab",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 365
+        }
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "MessageError",
+          "evalue": "Error: credential propagation was unsuccessful",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mMessageError\u001b[0m                              Traceback (most recent call last)",
+            "\u001b[0;32m/tmp/ipykernel_2842/2825973739.py\u001b[0m in \u001b[0;36m<cell line: 0>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;31m# Mount Google Drive\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      2\u001b[0m \u001b[0;32mfrom\u001b[0m \u001b[0mgoogle\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcolab\u001b[0m \u001b[0;32mimport\u001b[0m \u001b[0mdrive\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 3\u001b[0;31m \u001b[0mdrive\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmount\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'/content/drive'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      4\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m \u001b[0;31m# After mounting, you can copy files like this:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/usr/local/lib/python3.13/dist-packages/google/colab/drive.py\u001b[0m in \u001b[0;36mmount\u001b[0;34m(mountpoint, force_remount, timeout_ms, readonly)\u001b[0m\n\u001b[1;32m     95\u001b[0m \u001b[0;32mdef\u001b[0m \u001b[0mmount\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mmountpoint\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mforce_remount\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mFalse\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtimeout_ms\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;36m120000\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mreadonly\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mFalse\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     96\u001b[0m   \u001b[0;34m\"\"\"Mount your Google Drive at the specified mountpoint path.\"\"\"\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 97\u001b[0;31m   return _mount(\n\u001b[0m\u001b[1;32m     98\u001b[0m       \u001b[0mmountpoint\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     99\u001b[0m       \u001b[0mforce_remount\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mforce_remount\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/usr/local/lib/python3.13/dist-packages/google/colab/drive.py\u001b[0m in \u001b[0;36m_mount\u001b[0;34m(mountpoint, force_remount, timeout_ms, ephemeral, readonly)\u001b[0m\n\u001b[1;32m    132\u001b[0m   )\n\u001b[1;32m    133\u001b[0m   \u001b[0;32mif\u001b[0m \u001b[0mephemeral\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 134\u001b[0;31m     _message.blocking_request(\n\u001b[0m\u001b[1;32m    135\u001b[0m         \u001b[0;34m'request_auth'\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    136\u001b[0m         \u001b[0mrequest\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m{\u001b[0m\u001b[0;34m'authType'\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0;34m'dfs_ephemeral'\u001b[0m\u001b[0;34m}\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/usr/local/lib/python3.13/dist-packages/google/colab/_message.py\u001b[0m in \u001b[0;36mblocking_request\u001b[0;34m(request_type, request, timeout_sec, parent)\u001b[0m\n\u001b[1;32m    174\u001b[0m       \u001b[0mrequest_type\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mrequest\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mparent\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mparent\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mexpect_reply\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    175\u001b[0m   )\n\u001b[0;32m--> 176\u001b[0;31m   \u001b[0;32mreturn\u001b[0m \u001b[0mread_reply_from_input\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mrequest_id\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtimeout_sec\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;32m/usr/local/lib/python3.13/dist-packages/google/colab/_message.py\u001b[0m in \u001b[0;36mread_reply_from_input\u001b[0;34m(message_id, timeout_sec)\u001b[0m\n\u001b[1;32m    101\u001b[0m     ):\n\u001b[1;32m    102\u001b[0m       \u001b[0;32mif\u001b[0m \u001b[0;34m'error'\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mreply\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 103\u001b[0;31m         \u001b[0;32mraise\u001b[0m \u001b[0mMessageError\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mreply\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'error'\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    104\u001b[0m       \u001b[0;32mreturn\u001b[0m \u001b[0mreply\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'data'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    105\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mMessageError\u001b[0m: Error: credential propagation was unsuccessful"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "kMbxI-abscTn"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "D3L8Lkyj-5gl"
+      },
+      "source": [
+        "#Step 1: Clone the Roop repository from Github and install the required dependencies"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "0aHr4Fo-7IRy",
+        "outputId": "a3701658-539a-481e-a9c6-c0739ba6c387",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Cloning into 'roop'...\n",
+            "remote: Enumerating objects: 132, done.\u001b[K\n",
+            "remote: Counting objects: 100% (84/84), done.\u001b[K\n",
+            "remote: Compressing objects: 100% (47/47), done.\u001b[K\n",
+            "remote: Total 132 (delta 66), reused 37 (delta 37), pack-reused 48 (from 2)\u001b[K\n",
+            "Receiving objects: 100% (132/132), 706.02 KiB | 2.40 MiB/s, done.\n",
+            "Resolving deltas: 100% (70/70), done.\n",
+            "/content/roop\n",
+            "Collecting insightface==0.7.3 (from -r requirements.txt (line 1))\n",
+            "  Downloading insightface-0.7.3.tar.gz (439 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m439.5/439.5 kB\u001b[0m \u001b[31m13.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "Collecting onnx==1.14.0 (from -r requirements.txt (line 2))\n",
+            "  Downloading onnx-1.14.0.tar.gz (11.3 MB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m11.3/11.3 MB\u001b[0m \u001b[31m61.0 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Installing backend dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "\u001b[31mERROR: Could not find a version that satisfies the requirement onnxruntime==1.15.0 (from versions: 1.20.0, 1.20.1, 1.21.0, 1.21.1, 1.22.0, 1.22.1, 1.23.0, 1.23.1, 1.23.2, 1.24.1, 1.24.2, 1.24.3, 1.24.4, 1.25.0, 1.25.1, 1.26.0, 1.27.0, 1.28.0, 1.29.0, 1.30.0)\u001b[0m\u001b[31m\n",
+            "\u001b[0m\u001b[31mERROR: No matching distribution found for onnxruntime==1.15.0\u001b[0m\u001b[31m\n",
+            "\u001b[0m"
+          ]
+        }
+      ],
+      "source": [
+        "!git clone https://github.com/s0md3v/roop.git\n",
+        "%cd roop\n",
+        "!pip install -r requirements.txt"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "jl9zIFZYGWTQ"
+      },
+      "source": [
+        "#Download the Model"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 2,
+      "metadata": {
+        "id": "UQH2exUYGTbK",
+        "outputId": "67482d41-6bc5-4211-fd22-77051df26609",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--2026-09-28 11:00:33--  https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx\n",
+            "Resolving huggingface.co (huggingface.co)... 18.164.174.118, 18.164.174.23, 18.164.174.17, ...\n",
+            "Connecting to huggingface.co (huggingface.co)|18.164.174.118|:443... connected.\n",
+            "HTTP request sent, awaiting response... 302 Found\n",
+            "Location: https://us.gcp.cdn.hf.co/xet-bridge-us/64a4ee92f489f7ced55b6c7e/34890f0ff08211a8af3cfd4a6f216f0f64c7ed044a8c136410134695142e30c8?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27inswapper_128.onnx%3B+filename%3D%22inswapper_128.onnx%22%3B&X-Xet-Cas-Uid=public&xip=FZGvK4G6jwc&Expires=1790596833&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5nY3AuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRhNGVlOTJmNDg5ZjdjZWQ1NWI2YzdlLzM0ODkwZjBmZjA4MjExYThhZjNjZmQ0YTZmMjE2ZjBmNjRjN2VkMDQ0YThjMTM2NDEwMTM0Njk1MTQyZTMwYzhcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPSomWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPUZaR3ZLNEc2andjIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTA1OTY4MzN9fX1dfQ__&Signature=MEQCIDFnS0t0ABezurpxeh9BeeulU3ESncHXa3IWOWSDLCRHAiAGvxZWElb9b9aYUOa7N7lToBjGMbad8q5KbkE02nogfA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256 [following]\n",
+            "--2026-09-28 11:00:33--  https://us.gcp.cdn.hf.co/xet-bridge-us/64a4ee92f489f7ced55b6c7e/34890f0ff08211a8af3cfd4a6f216f0f64c7ed044a8c136410134695142e30c8?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27inswapper_128.onnx%3B+filename%3D%22inswapper_128.onnx%22%3B&X-Xet-Cas-Uid=public&xip=FZGvK4G6jwc&Expires=1790596833&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5nY3AuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRhNGVlOTJmNDg5ZjdjZWQ1NWI2YzdlLzM0ODkwZjBmZjA4MjExYThhZjNjZmQ0YTZmMjE2ZjBmNjRjN2VkMDQ0YThjMTM2NDEwMTM0Njk1MTQyZTMwYzhcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPSomWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPUZaR3ZLNEc2andjIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTA1OTY4MzN9fX1dfQ__&Signature=MEQCIDFnS0t0ABezurpxeh9BeeulU3ESncHXa3IWOWSDLCRHAiAGvxZWElb9b9aYUOa7N7lToBjGMbad8q5KbkE02nogfA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256\n",
+            "Resolving us.gcp.cdn.hf.co (us.gcp.cdn.hf.co)... 34.36.28.89\n",
+            "Connecting to us.gcp.cdn.hf.co (us.gcp.cdn.hf.co)|34.36.28.89|:443... connected.\n",
+            "HTTP request sent, awaiting response... 200 OK\n",
+            "Length: 554253681 (529M) [application/octet-stream]\n",
+            "Saving to: ‘inswapper_128.onnx’\n",
+            "\n",
+            "inswapper_128.onnx  100%[===================>] 528.58M   180MB/s    in 2.9s    \n",
+            "\n",
+            "2026-09-28 11:00:36 (180 MB/s) - ‘inswapper_128.onnx’ saved [554253681/554253681]\n",
+            "\n"
+          ]
+        }
+      ],
+      "source": [
+        "!wget https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx -O inswapper_128.onnx\n",
+        "!mkdir models\n",
+        "!mv inswapper_128.onnx ./models"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nCKli1C-_EaO"
+      },
+      "source": [
+        "# Replace the\n",
+        "\n",
+        "```\n",
+        "/content/video.mp4 # with your video path\n",
+        "/content/image.jpeg # with your image to be placed in the video path\n",
+        "```\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "lDYdfL3L71i1",
+        "outputId": "5ce02f12-8b8f-4951-a3b4-19787f7a727a"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "python3: can't open file '/content/roop/run.py': [Errno 2] No such file or directory\n"
+          ]
+        }
+      ],
+      "source": [
+        "!python run.py --target /content/video.mp4 --output-video-quality 80 --source /content/image.jpeg -o /content/swapped.mp4 --execution-provider cuda --frame-processor face_swapper face_enhancer"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "id": "dB-yigWx8zht"
+      },
+      "outputs": [],
+      "source": []
+    }
+  ],
+  "metadata": {
+    "accelerator": "GPU",
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
